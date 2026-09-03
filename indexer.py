@@ -4,8 +4,6 @@ import exif
 
 
 
-
-
 def is_image(file_name):
     if file_name.lower().endswith((".jpg", ".jpeg", ".png", ".gif")):
         return True
@@ -14,26 +12,25 @@ def is_image(file_name):
 
 
 def index_image_dir_recursive(directory, recursive_depth=1):
-    """Searches directory recursively, indexing folders with images
-    inside
+    """Searches directory recursively, indexing each folder
     
     Takes a directory name or path and adds an index to each folder
-    inside that has images within them. Returns True if there are 
-    images are inside
+    linking subdirectories with images inside. Returns dict with lists
+    of sub directories with images and images in the current directory
     """
 
-    depth_tab = "|\t"*recursive_depth
-    print(f"{depth_tab}scanning {directory}")
+    # depth_tab = "|\t"*recursive_depth
+    # print(f"{depth_tab}scanning {directory}")
     dir_data = {"directories_with_images": [], "images": []}
 
     for entry in os.scandir(directory):
 
         # CASE 1 DIRECTORY
         if entry.is_dir(): 
-            print(f"{depth_tab}Found DIRECTORY")
+            # print(f"{depth_tab}Found DIRECTORY")
 
-            #Recursive call vv
-            sub_dir_data = index_image_dir_recursive(entry, recursive_depth+1) # check for images inside
+            # Recursive call vv
+            sub_dir_data = index_image_dir_recursive(entry, recursive_depth+1) # retrieve directories and images inside
 
             if sub_dir_data["images"] or sub_dir_data["directories_with_images"]:
                 dir_data["directories_with_images"].append(entry)
@@ -41,15 +38,16 @@ def index_image_dir_recursive(directory, recursive_depth=1):
 
         # CASE 2 IMAGE
         elif is_image(entry.name):
-            print(f"{depth_tab}Found IMAGE")
+            # print(f"{depth_tab}Found IMAGE")
             dir_data["images"].append(entry)
 
         # CASE 3 NOT A DIRECTORY OR AN IMAGE
         else:
-            print(f"{depth_tab}Found NON IMAGE/DIR")
+            # print(f"{depth_tab}Found NON IMAGE/DIR")
+            pass
 
     
-    print(f"{depth_tab}done scanning {directory}, has images inside? {bool(dir_data["images"])}")
+    # print(f"{depth_tab}done scanning {directory}, has images inside? {bool(dir_data["images"])}")
 
     return dir_data
         
@@ -75,7 +73,7 @@ def create_html_str(parent_dir, sub_dir_data=None):
         <style>
         .dirlink_el {font-size: 125%;}
         .sm_img {max-height: 200px; max-width: 200px;}
-        .img_el {display: inline-block; padding-bottom: 15px; padding-right: 10px;}
+        .img_el {display: inline-block; vertical-align: top; padding-bottom: 15px; padding-right: 10px;}
         </style>""" #style is largely copied from example html
 
     html_str = f"""
@@ -104,7 +102,7 @@ def create_sub_dir_str(sub_dir_data):
     return sub_dir_str
 
 
-def create_images_html(sub_dir_data): # currently attaching the images too large
+def create_images_html(sub_dir_data):
     images_str = ""
 
     for image in sub_dir_data["images"]:
@@ -122,31 +120,31 @@ def create_images_html(sub_dir_data): # currently attaching the images too large
 
 
 def get_exif_data(image): # TODO This works great for the timestamp, but isn't working at all for location
-    print(f"Let's get exif data for image: {image.name}")
+    # print(f"Let's get exif data for image: {image.name}")
     date_time = exif.get_timestamp(image)
     loc = exif_to_location(image)
     return f"""
             <br>
-            {date_time if date_time else ""}
+            {date_time if date_time else "\n"}
             <br>
-            {loc if loc else ""}"""
+            {loc if loc else "\n"}""" #not sure if new line is the solution to image formatting issue...
 
 
 def exif_to_location(image):
     lat, long = exif.get_coordiantes(image)
-    print(f"lat: {lat}, long: {long}")
+    # print(f"lat: {lat}, long: {long}")
     try:
         loc = exif.convert_to_location(lat, long)
-        print(f"\tLOCATION: {loc}")
+        # print(f"\tLOCATION: {loc}")
         city_state_country = f"{loc[0]}, {loc[1]} {loc[2]}"
         return city_state_country
     except:
-        print("\tCouldn't get the location data...")
+        # print("\tCouldn't get the location data...")
         return None
 
 
 def main():
-    print(index_image_dir_recursive(sys.argv[1]))
+    index_image_dir_recursive(sys.argv[1])
 
 
 

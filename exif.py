@@ -32,7 +32,7 @@ def get_coordiantes(file):
     latref = tags.get("GPS GPSLatitudeRef")
     longref = tags.get("GPS GPSLongitudeRef")
 
-    print(f"got coordinates: {latitude} {latref}, {longitude} {longref}")
+    #print(f"got coordinates: {latitude} {latref}, {longitude} {longref}")
     return convert_to_decimal(latitude, latref), convert_to_decimal(longitude, longref)
 
 def convert_to_decimal(dms, reference):
@@ -44,16 +44,16 @@ def convert_to_decimal(dms, reference):
     if str(reference) == "S" or str(reference) == "W":
         decimal*= -1
 
-    print("converted to decimal")
+    # print("converted to decimal")
     return decimal
 
 
 def convert_to_location(lat, long):
-    print("converting to location...")
+    # print("converting to location...")
     coordinates = (lat, long)
     loc_data= rg.search(coordinates)[0]
     #loc_data = loc_data_big[0]
-    print(f"{loc_data["name"]}, {loc_data["admin1"]}, {loc_data["cc"]}")
+    # print(f"{loc_data["name"]}, {loc_data["admin1"]}, {loc_data["cc"]}")
     city = loc_data["name"]
     state = loc_data["admin1"]
     country = loc_data["cc"]
@@ -63,7 +63,7 @@ def convert_to_location(lat, long):
 def exif_to_location(file):
     lat, long = get_coordiantes(file)
     if lat and long:
-        print(f"lat: {lat}, long: {long} --> Let's convert to location")
+        # print(f"lat: {lat}, long: {long} --> Let's convert to location")
         return convert_to_location(lat, long)
     else:
         return None
