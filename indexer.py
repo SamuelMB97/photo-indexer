@@ -37,9 +37,8 @@ def index_image_dir_recursive(directory, recursive_depth=1):
 
             if sub_dir_data["images"] or sub_dir_data["directories_with_images"]:
                 dir_data["directories_with_images"].append(entry)
-                create_index(entry, sub_dir_data) # TODO make this function and one that it references to set up images
+            create_index(entry, sub_dir_data)
 
-        # TODO make this elif vv reference a helper function
         # CASE 2 IMAGE
         elif is_image(entry.name):
             print(f"{depth_tab}Found IMAGE")
@@ -55,15 +54,22 @@ def index_image_dir_recursive(directory, recursive_depth=1):
     return dir_data
         
 
-def create_index(parent_dir, sub_dir_data):
+def create_index(parent_dir, sub_dir_data=None):
     index_path = os.path.join(parent_dir.path, "index.html")
     with open(index_path, "w", encoding="utf-8") as html:
         html.write(create_html_str(parent_dir, sub_dir_data))
 
 
-def create_html_str(parent_dir, sub_dir_data):
-    sub_dir_links = create_sub_dir_str(sub_dir_data)
-    images_html = create_images_html(sub_dir_data)
+def create_html_str(parent_dir, sub_dir_data=None):
+    if sub_dir_data["directories_with_images"]:
+        sub_dir_links = create_sub_dir_str(sub_dir_data)
+    else:
+        sub_dir_links = ""
+
+    if sub_dir_data["images"]:
+        images_html = create_images_html(sub_dir_data)
+    else:
+        images_html = ""
 
     style = """
         <style>
